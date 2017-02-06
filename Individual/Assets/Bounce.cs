@@ -6,10 +6,10 @@ public class Bounce : MonoBehaviour {
 
 
     public Rigidbody2D rb;
+    public static float speed = 50;
 	// Use this for initialization
 	void Start () {
         rb = GetComponent<Rigidbody2D>();
-        rb.velocity = new Vector2(rb.velocity.x + 10, rb.velocity.y);
 	}
 	
 	// Update is called once per frame
@@ -18,8 +18,7 @@ public class Bounce : MonoBehaviour {
     }
 
     void OnMouseDown(){
-        Vector2 curVelocity = rb.velocity;
-        rb.velocity = new Vector2(curVelocity.x, curVelocity.y+200);
+        rb.velocity = new Vector2(rb.velocity.x, speed);
 
         Debug.Log("YEP");
     }
