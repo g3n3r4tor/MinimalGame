@@ -4,7 +4,7 @@ using System.Collections;
 public class Bounce : MonoBehaviour {
 
 
-
+    public AudioClip bounceAudio;
     public Rigidbody2D rb;
     public static float speed = 50;
     public BounceCount bc;
@@ -13,6 +13,7 @@ public class Bounce : MonoBehaviour {
 	void Start () {
         rb = GetComponent<Rigidbody2D>();
         height = 0;
+        GetComponent<AudioSource>().playOnAwake = false;
 	}
 	
     public void setBouncecount(BounceCount bc)
@@ -32,6 +33,7 @@ public class Bounce : MonoBehaviour {
     }
     private void OnCollisionEnter2D(Collision2D collision)
     {
+        GetComponent<AudioSource>().Play();
         if (collision.collider.name == "botWall")
         {
             float tmp;
@@ -41,6 +43,7 @@ public class Bounce : MonoBehaviour {
                 bc.callThis(tmp);
                // Debug.Log("Height:" + height);
             }
+
         }
         
     }

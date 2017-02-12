@@ -8,6 +8,7 @@ public class Store : MonoBehaviour {
     public GameObject prefab;
     public BounceCount bc;
     public GameObject errorText;
+    public Image errorOverlay;
     public int[] kashNeeded = new int[4];
 
     float bounc = 0;
@@ -21,11 +22,14 @@ public class Store : MonoBehaviour {
         Bounce b = obj.GetComponent<Bounce>();
         b.setBouncecount(bc);
     }
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            Settings.instance.PauseGame();
+        }
+    }
     public void increaseBounciness()
     {
         //Debug.Log(bc.kash);
@@ -144,7 +148,9 @@ public class Store : MonoBehaviour {
         Text text = errorText.GetComponent<Text>();
         text.text = message;
         text.enabled = true;
+        errorOverlay.GetComponent<Image>().enabled = true;
         yield return new WaitForSeconds(1);
+        errorOverlay.GetComponent<Image>().enabled = false;
         text.enabled = false;
     }
 }
