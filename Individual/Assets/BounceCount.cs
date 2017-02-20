@@ -25,7 +25,10 @@ public class BounceCount : MonoBehaviour {
 	}
     public void callThis(float height)
     {
-        kash += (int)((height+140) / 20);
+        Debug.Log("Size: " + size);
+        int add = (int)(((height + 140) / 20) * (size / 100));
+        kash += add;
+        Debug.Log(add);
         bouncec++;
         text.GetComponent<Text>().text = "Bounces: " + bouncec;
         updateKash();

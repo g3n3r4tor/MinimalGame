@@ -14,8 +14,22 @@ public class Bounce : MonoBehaviour {
         rb = GetComponent<Rigidbody2D>();
         height = 0;
         GetComponent<AudioSource>().playOnAwake = false;
-	}
-	
+        if (CostHolder.instance.first)
+        {
+            firstOne();
+            CostHolder.instance.first = false;
+        }
+        
+    }
+	public void firstOne()
+    {
+        PhysicsMaterial2D pm = this.gameObject.GetComponent<Collider2D>().sharedMaterial;
+        pm.bounciness = 0;
+        pm.friction = 1;
+        this.gameObject.GetComponent<Collider2D>().sharedMaterial = pm;
+        this.gameObject.GetComponent<Rigidbody2D>().sharedMaterial = pm;
+       
+    }
     public void setBouncecount(BounceCount bc)
     {
         this.bc = bc;
@@ -28,8 +42,7 @@ public class Bounce : MonoBehaviour {
 
     void OnMouseDown(){
         rb.velocity = new Vector2(rb.velocity.x, speed);
-
-        Debug.Log("YEP");
+        
     }
     private void OnCollisionEnter2D(Collision2D collision)
     {

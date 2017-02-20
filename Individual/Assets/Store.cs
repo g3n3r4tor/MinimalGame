@@ -10,7 +10,7 @@ public class Store : MonoBehaviour {
     public GameObject errorText;
     public Image errorOverlay;
     public int[] kashNeeded = new int[4];
-
+    private float[] actualKash = new float[4];
     float bounc = 0;
     // Use this for initialization
     void Start () {
@@ -21,6 +21,15 @@ public class Store : MonoBehaviour {
         bc = GetComponentInParent<BounceCount>();
         Bounce b = obj.GetComponent<Bounce>();
         b.setBouncecount(bc);
+        kashNeeded[0] = 1;
+        actualKash[0] = 1;
+        kashNeeded[1] = 2;
+        actualKash[1] = 2;
+        kashNeeded[2] = 4;
+        actualKash[2] = 4;
+        kashNeeded[3] = 8;
+        actualKash[3] = 8;
+
     }
 
     private void Update()
@@ -46,9 +55,17 @@ public class Store : MonoBehaviour {
                 ball.GetComponent<Collider2D>().sharedMaterial = pm;
                 ball.GetComponent<Rigidbody2D>().sharedMaterial = pm;
             }
+            if (bounc >= 1)
+            {
+                CostHolder.instance.maxed = true;
+            }
             //Debug.Log("Bounciness: " + bounc);
             bc.kash -= kashNeeded[0];
+            actualKash[0] *= 2f;
+            kashNeeded[0] = Mathf.FloorToInt(actualKash[0]);
             bc.updateKash();
+            CostHolder.instance.updateCost(kashNeeded);
+            
         }
         else if(bounc < 1)
         {
@@ -56,6 +73,7 @@ public class Store : MonoBehaviour {
         }
         else
         {
+
             StartCoroutine(ScreenMessage("Already Maxed"));
         }
     }
@@ -78,11 +96,14 @@ public class Store : MonoBehaviour {
     }
     public void increaseForce()
     {
-        if (bc.kash >= kashNeeded[1])
+        if (bc.kash >= kashNeeded[2])
         {
             Bounce.speed += 10;
             Debug.Log("Bounce speed: " + Bounce.speed);
-            bc.kash -= kashNeeded[1];
+            bc.kash -= kashNeeded[2];
+            actualKash[2] *= 1.15f;
+            kashNeeded[2] = Mathf.FloorToInt(actualKash[2]);
+            CostHolder.instance.updateCost(kashNeeded);
             bc.updateKash();
         }
         else
@@ -92,7 +113,7 @@ public class Store : MonoBehaviour {
     }
     public void split()
     {
-        if (bc.size > 100 && bc.kash >= kashNeeded[2])
+        if (bc.size > 100 && bc.kash >= kashNeeded[3])
         {
             Debug.Log(bc.size);
             GameObject[] balls = GameObject.FindGameObjectsWithTag("Ball");
@@ -115,8 +136,12 @@ public class Store : MonoBehaviour {
                 foreach (GameObject ballx in balls)
                     Physics2D.IgnoreCollision(ball.GetComponent<Collider2D>(), ballx.GetComponent<Collider2D>());
             }
-            bc.kash -= kashNeeded[2];
+            bc.kash -= kashNeeded[3];
+            actualKash[3] *= 3f;
+            kashNeeded[3] = Mathf.FloorToInt(actualKash[3]);
             bc.updateKash();
+            CostHolder.instance.updateCost(kashNeeded);
+
         }
         else
         {
@@ -125,7 +150,7 @@ public class Store : MonoBehaviour {
     }
     public void increaseSize()
     {
-        if (bc.kash >= kashNeeded[3])
+        if (bc.kash >= kashNeeded[1])
         {
             GameObject[] balls = GameObject.FindGameObjectsWithTag("Ball");
             foreach (GameObject ball in balls)
@@ -134,9 +159,13 @@ public class Store : MonoBehaviour {
 
                 ball.GetComponents<Rigidbody2D>();
             }
-            bc.kash -= kashNeeded[3];
+            bc.kash -= kashNeeded[1];
+            actualKash[1] *= 1.20f;
+            kashNeeded[1] = Mathf.FloorToInt(actualKash[1]);
             bc.updateKash();
             bc.size *= 1.05f;
+            CostHolder.instance.updateCost(kashNeeded);
+
         }
         else
         {
