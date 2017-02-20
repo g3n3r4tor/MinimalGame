@@ -47,6 +47,9 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\Bounce.cs" />
+     <Compile Include="Assets\BounceCount.cs" />
+     <Compile Include="Assets\CostHolder.cs" />
+     <Compile Include="Assets\Settings.cs" />
      <Compile Include="Assets\SpawnBall.cs" />
      <Compile Include="Assets\Store.cs" />
  <Reference Include="UnityEngine.UI">

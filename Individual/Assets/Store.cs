@@ -5,22 +5,18 @@ using UnityEngine.UI;
 
 public class Store : MonoBehaviour {
 
+    public static Store instance;
     public GameObject prefab;
     public BounceCount bc;
     public GameObject errorText;
     public Image errorOverlay;
     public int[] kashNeeded = new int[4];
-    private float[] actualKash = new float[4];
-    float bounc = 0;
+    public float[] actualKash = new float[4];
+    public float bounc { get; private set; }
     // Use this for initialization
     void Start () {
-        GameObject obj = Instantiate(prefab, new Vector3(0, 0, 0), Quaternion.identity) as GameObject;
-        obj.GetComponent<SpriteRenderer>().color = new Color(Random.Range(0f, 1f), Random.Range(0f, 1f), Random.Range(0f, 1f));
-        obj.GetComponent<Collider2D>().sharedMaterial.bounciness = 0.0f;
-        obj.GetComponent<Collider2D>().sharedMaterial.friction = 1.0f;
-        bc = GetComponentInParent<BounceCount>();
-        Bounce b = obj.GetComponent<Bounce>();
-        b.setBouncecount(bc);
+        instance = this;
+        bounc = 0;
         kashNeeded[0] = 1;
         actualKash[0] = 1;
         kashNeeded[1] = 2;
@@ -31,12 +27,52 @@ public class Store : MonoBehaviour {
         actualKash[3] = 8;
 
     }
+    public void createBall(float bounciness,float size)
+    {
+        GameObject obj = Instantiate(prefab, new Vector3(0, 0, 0), Quaternion.identity) as GameObject;
+        obj.GetComponent<SpriteRenderer>().color = new Color(Random.Range(0f, 1f), Random.Range(0f, 1f), Random.Range(0f, 1f));
+        obj.GetComponent<Collider2D>().sharedMaterial.bounciness = bounciness;
+        obj.GetComponent<Collider2D>().sharedMaterial.friction = 1.0f;
+        obj.GetComponent<Transform>().localScale = new Vector3(size,size,1);
+        bc = GetComponentInParent<BounceCount>();
+        BounceCount.instance.addBall(obj);
+        GameObject[] balls = GameObject.FindGameObjectsWithTag("Ball");
+        foreach (GameObject ball in balls)
+        {
+            foreach (GameObject ballx in balls)
+                Physics2D.IgnoreCollision(ball.GetComponent<Collider2D>(), ballx.GetComponent<Collider2D>());
+        }
+        
 
+    }
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             Settings.instance.PauseGame();
+        }
+    }
+    public void loadStuff(float[] cashNeeded, float bouncy, int ballAmount,float size)
+    {
+        actualKash = cashNeeded;
+        bounc = bouncy;
+        for(int i = 0; i < ballAmount; i++) {
+            createBall(bounc, size);
+        }
+        
+        int[] kashneeded = new int[4];
+        for (int i = 0; i < 4; i++)
+        {
+            kashneeded[i] = Mathf.FloorToInt(cashNeeded[i]);
+        }
+        CostHolder.instance.updateCost(kashneeded);
+        GameObject[] balls = GameObject.FindGameObjectsWithTag("Ball");
+        PhysicsMaterial2D pm = balls[0].GetComponent<Collider2D>().sharedMaterial;
+        pm.bounciness = bounc;
+        foreach (GameObject ball in balls)
+        {
+            ball.GetComponent<Collider2D>().sharedMaterial = pm;
+            ball.GetComponent<Rigidbody2D>().sharedMaterial = pm;
         }
     }
     public void increaseBounciness()
@@ -46,10 +82,10 @@ public class Store : MonoBehaviour {
         if (bc.kash >= kashNeeded[0] && bounc < 1)
         {
             GameObject[] balls = GameObject.FindGameObjectsWithTag("Ball");
-            float tmp = bounc;
             PhysicsMaterial2D pm = balls[0].GetComponent<Collider2D>().sharedMaterial;
-            pm.bounciness += 0.1f;
-            bounc = pm.bounciness;
+            bounc += 0.1f;
+            pm.bounciness = bounc;
+            
             foreach (GameObject ball in balls)
             {
                 ball.GetComponent<Collider2D>().sharedMaterial = pm;
@@ -98,10 +134,15 @@ public class Store : MonoBehaviour {
     {
         if (bc.kash >= kashNeeded[2])
         {
-            Bounce.speed += 10;
+            if(Bounce.speed <= float.MaxValue)
+                Bounce.speed *= 1.05f;
+            else
+            {
+                Bounce.speed = float.MaxValue;
+            }
             Debug.Log("Bounce speed: " + Bounce.speed);
             bc.kash -= kashNeeded[2];
-            actualKash[2] *= 1.15f;
+            actualKash[2] *= 2.5f;
             kashNeeded[2] = Mathf.FloorToInt(actualKash[2]);
             CostHolder.instance.updateCost(kashNeeded);
             bc.updateKash();
@@ -124,8 +165,7 @@ public class Store : MonoBehaviour {
                 obj.GetComponent<Transform>().localScale = ball.transform.localScale / 1.5f;
                 obj.GetComponent<Rigidbody2D>().velocity = (new Vector2(ball.GetComponent<Rigidbody2D>().velocity.x - 5, ball.GetComponent<Rigidbody2D>().velocity.y + 10));
                 obj.GetComponent<SpriteRenderer>().color = new Color(Random.Range(0f, 1f), Random.Range(0f, 1f), Random.Range(0f, 1f));
-                Bounce b = obj.GetComponent<Bounce>();
-                b.setBouncecount(bc);
+                BounceCount.instance.addBall(obj);
                 ball.GetComponent<Transform>().localScale = ball.transform.localScale / 1.5f;
                 ball.GetComponent<Rigidbody2D>().velocity = (new Vector2(5 + ball.GetComponent<Rigidbody2D>().velocity.x, ball.GetComponent<Rigidbody2D>().velocity.y - 10));
             }
